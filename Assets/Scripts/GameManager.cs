@@ -20,13 +20,13 @@ public class GameManager : MonoBehaviour {
 
     [Space]
     [SerializeField] private ClickerCounter clickerCounter;
-    [SerializeField] private readonly Image pauseImage;
+    [SerializeField] private Image pauseImage;
     [SerializeField] private Text countdownText;
 
     private float timer = 3.0f;
 
 
-    void Start()
+    void Awake()
     {
         isGamePaused = true;
         ChooseRandomColorScheme();
@@ -36,8 +36,11 @@ public class GameManager : MonoBehaviour {
     {
         BeginCountdown();
         CheckWinner();
-        Debug.Log(isGamePaused);
-	}
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ChooseRandomColorScheme();
+        }
+    }
 
     private void BeginCountdown()
     {
@@ -68,24 +71,19 @@ public class GameManager : MonoBehaviour {
         int playerTwoScore = clickerCounter.GetPlayerTwoClickerCounterValue();
         if (playerOneScore >= 100)
         {
-            Debug.Log("Player One Wins");
-            isGamePaused = true;
+            GameOver();
         }
         else if (playerTwoScore >= 100)
         {
-            Debug.Log("Player Two Wins");
-            isGamePaused = true;
+            GameOver();
         }
     }
 
     private void ChooseRandomColorScheme()
     {
-
         Color backgroundColor;
         Color firstElements;
         Color secondElements;
-
-
         int randomColorScheme = Random.Range(0, 10); 
 
         switch (randomColorScheme)
@@ -172,13 +170,12 @@ public class GameManager : MonoBehaviour {
 
     private void SetColorScheme(Color backgroundColor, Color firstElements, Color secondElements)
     {
-
+        Debug.Log("test");
+        clickerCounter.SetPlayersClickerCounterImageColor(firstElements);
         mainCamera.backgroundColor = backgroundColor;
         clickerCounterP1Fill.color = backgroundColor;
         clickerCounterP2Fill.color = backgroundColor;
-        clickerCounterP1Image.color = firstElements;
         clickerCounterP1Text.color = secondElements;
-        clickerCounterP2Image.color = firstElements;
         clickerCounterP2Text.color = secondElements;
     }
 
@@ -187,8 +184,16 @@ public class GameManager : MonoBehaviour {
         ParticleSystem.ColorOverLifetimeModule particleP1Color = clickerCounterP1Particle.colorOverLifetime;
         ParticleSystem.ColorOverLifetimeModule particleP2Color = clickerCounterP2Particle.colorOverLifetime;
         Gradient gradient = new Gradient();
-        gradient.SetKeys(new GradientColorKey[] { new GradientColorKey(firstElement, 0.0f), new GradientColorKey(Color.white, 1.0f) }, new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) });
+        gradient.SetKeys(new GradientColorKey[] { new GradientColorKey(firstElement, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+                        new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) });
         particleP1Color.color = gradient;
         particleP2Color.color = gradient;
+    }
+
+    private void GameOver()
+    {
+        isGamePaused = true;
+        clickerCounterP1Image.enabled = false;
+        clickerCounterP2Image.enabled = false;
     }
 }
