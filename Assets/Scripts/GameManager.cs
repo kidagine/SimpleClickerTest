@@ -12,29 +12,34 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Image clickerCounterP1Image;
     [SerializeField] private Image clickerCounterP1Fill;
     [SerializeField] private Text clickerCounterP1Text;
-    [SerializeField] private ParticleSystem clickerCounterP1Particle;
+    [SerializeField] private ParticleSystem particlePlayerOneNormal;
+    [SerializeField] private ParticleSystem particlePlayerOneExplosion;
     [SerializeField] private Image clickerCounterP2Image;
     [SerializeField] private Image clickerCounterP2Fill;
     [SerializeField] private Text clickerCounterP2Text;
-    [SerializeField] private ParticleSystem clickerCounterP2Particle;
+    [SerializeField] private ParticleSystem particlePlayerTwoNormal;
+    [SerializeField] private ParticleSystem particlePlayerTwoExplosion;
 
+    [Tooltip("Countdown elements")]
     [Space]
+    [SerializeField] private Animator countdownAnimator;
     [SerializeField] private ClickerCounter clickerCounter;
     [SerializeField] private Image pauseImage;
     [SerializeField] private Text countdownText;
 
-    private float timer = 3.0f;
-
-
     void Awake()
     {
-        isGamePaused = true;
         ChooseRandomColorScheme();
+    }
+
+    void Start()
+    {
+        StartCoroutine(BeginCountdown());
+        isGamePaused = true;
     }
 
     void Update ()
     {
-        BeginCountdown();
         CheckWinner();
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -42,25 +47,29 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void BeginCountdown()
+   IEnumerator BeginCountdown()
     {
-        if (countdownText != null && timer > 0)
-        {
-            timer -= Time.deltaTime;
-            countdownText.text = Mathf.Round(timer) + "";
-            if (timer <= 0)
-            {
-                StartCoroutine(StartGame());
-            }
-        }
+        countdownText.text = "3";
+        yield return new WaitForSeconds(0.7f);
+        FindObjectOfType<AudioManager>().Play("Countdown");
+        yield return new WaitForSeconds(0.3f);
+        countdownText.text = "2";
+        yield return new WaitForSeconds(0.7f);
+        FindObjectOfType<AudioManager>().Play("Countdown");
+        yield return new WaitForSeconds(0.3f); countdownText.text = "1";
+        StartCoroutine(StartGame());
     }
 
     IEnumerator StartGame()
     {
-        yield return new WaitForSeconds(0.6f);
-        countdownText.text = "GO";
-        yield return new WaitForSeconds(1.0f);
-        isGamePaused = false;
+        yield return new WaitForSeconds(0.7f);
+        FindObjectOfType<AudioManager>().Play("Countdown");
+        yield return new WaitForSeconds(0.2f);
+        countdownAnimator.SetTrigger("Go");
+        countdownText.text = "GO!";
+        yield return new WaitForSeconds(0.7f);
+        FindObjectOfType<AudioManager>().Play("Countdown");
+        yield return new WaitForSeconds(0.3f); isGamePaused = false;
         Destroy(pauseImage);
         Destroy(countdownText);
     }
@@ -69,14 +78,40 @@ public class GameManager : MonoBehaviour {
     {
         int playerOneScore = clickerCounter.GetPlayerOneClickerCounterValue();
         int playerTwoScore = clickerCounter.GetPlayerTwoClickerCounterValue();
-        if (playerOneScore >= 100)
+        if (!isGamePaused)
         {
-            GameOver();
+            if (playerOneScore >= 100)
+            {
+                GameOver(1);
+            }
+            else if (playerTwoScore >= 100)
+            {
+                GameOver(2);
+            }
         }
-        else if (playerTwoScore >= 100)
+    }
+
+    private void GameOver(int playerWon)
+    {
+        isGamePaused = true;
+        FindObjectOfType<AudioManager>().Play("Explosion");
+        disableImages();
+        if (playerWon == 1)
         {
-            GameOver();
+            clickerCounter.IncrementClickerCounterPlayerOneValue(0, 0.0f, 0.0f, 0.1f, true, false);
         }
+        else if (playerWon == 2)
+        {
+            clickerCounter.IncrementClickerCounterPlayerTwoValue(0, 0.0f, 0.0f, 0.1f, true, false);
+        }
+    }
+
+    private void disableImages()
+    {
+        clickerCounterP1Image.enabled = false;
+        clickerCounterP2Image.enabled = false;
+        clickerCounterP1Fill.enabled = false;
+        clickerCounterP2Fill.enabled = false;
     }
 
     private void ChooseRandomColorScheme()
@@ -84,7 +119,7 @@ public class GameManager : MonoBehaviour {
         Color backgroundColor;
         Color firstElements;
         Color secondElements;
-        int randomColorScheme = Random.Range(0, 10); 
+        int randomColorScheme = Random.Range(0, 20); 
 
         switch (randomColorScheme)
         {
@@ -158,6 +193,76 @@ public class GameManager : MonoBehaviour {
                 SetColorScheme(backgroundColor, firstElements, secondElements);
                 SetParticlesColor(firstElements);
                 break;
+            case 11:
+                ColorUtility.TryParseHtmlString("#132a13", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#4f772d", out firstElements);
+                ColorUtility.TryParseHtmlString("#ecf39e", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 12:
+                ColorUtility.TryParseHtmlString("#754f44", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#ec7357", out firstElements);
+                ColorUtility.TryParseHtmlString("#fdd692", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 13:
+                ColorUtility.TryParseHtmlString("#540d6e", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#ee4266", out firstElements);
+                ColorUtility.TryParseHtmlString("#ffd23f", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 14:
+                ColorUtility.TryParseHtmlString("#330036", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#2f394d", out firstElements);
+                ColorUtility.TryParseHtmlString("#eee1b3", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 15:
+                ColorUtility.TryParseHtmlString("#615055", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#b4a6ab", out firstElements);
+                ColorUtility.TryParseHtmlString("#ddf8e8", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 16:
+                ColorUtility.TryParseHtmlString("#7dce82", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#ff8360", out firstElements);
+                ColorUtility.TryParseHtmlString("#e8e288", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 17:
+                ColorUtility.TryParseHtmlString("#931f1d", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#8a9b68", out firstElements);
+                ColorUtility.TryParseHtmlString("#d5ddbc", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 18:
+                ColorUtility.TryParseHtmlString("#212227", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#637074", out firstElements);
+                ColorUtility.TryParseHtmlString("#aab9cf", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 19:
+                ColorUtility.TryParseHtmlString("#e63b2e", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#ff7733", out firstElements);
+                ColorUtility.TryParseHtmlString("#e1e6e1", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
+            case 20:
+                ColorUtility.TryParseHtmlString("#70d6ff", out backgroundColor);
+                ColorUtility.TryParseHtmlString("#ff70a6", out firstElements);
+                ColorUtility.TryParseHtmlString("#ff9770", out secondElements);
+                SetColorScheme(backgroundColor, firstElements, secondElements);
+                SetParticlesColor(firstElements);
+                break;
             default:
                 ColorUtility.TryParseHtmlString("#46237a", out backgroundColor);
                 ColorUtility.TryParseHtmlString("#ff495c", out firstElements);
@@ -170,7 +275,6 @@ public class GameManager : MonoBehaviour {
 
     private void SetColorScheme(Color backgroundColor, Color firstElements, Color secondElements)
     {
-        Debug.Log("test");
         clickerCounter.SetPlayersClickerCounterImageColor(firstElements);
         mainCamera.backgroundColor = backgroundColor;
         clickerCounterP1Fill.color = backgroundColor;
@@ -181,19 +285,17 @@ public class GameManager : MonoBehaviour {
 
     private void SetParticlesColor(Color firstElement)
     {
-        ParticleSystem.ColorOverLifetimeModule particleP1Color = clickerCounterP1Particle.colorOverLifetime;
-        ParticleSystem.ColorOverLifetimeModule particleP2Color = clickerCounterP2Particle.colorOverLifetime;
+        ParticleSystem.ColorOverLifetimeModule particleP1Color = particlePlayerOneNormal.colorOverLifetime;
+        ParticleSystem.ColorOverLifetimeModule particleP2Color = particlePlayerTwoNormal.colorOverLifetime;
+        ParticleSystem.ColorOverLifetimeModule particleP1ColorExplosion = particlePlayerOneExplosion.colorOverLifetime;
+        ParticleSystem.ColorOverLifetimeModule particleP2ColorExplosion = particlePlayerTwoExplosion.colorOverLifetime;
         Gradient gradient = new Gradient();
         gradient.SetKeys(new GradientColorKey[] { new GradientColorKey(firstElement, 0.0f), new GradientColorKey(Color.white, 1.0f) },
                         new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) });
         particleP1Color.color = gradient;
         particleP2Color.color = gradient;
+        particleP1ColorExplosion.color = gradient;
+        particleP2ColorExplosion.color = gradient;
     }
 
-    private void GameOver()
-    {
-        isGamePaused = true;
-        clickerCounterP1Image.enabled = false;
-        clickerCounterP2Image.enabled = false;
-    }
 }
